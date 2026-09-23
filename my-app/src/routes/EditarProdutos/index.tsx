@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import type { TipoProduto } from "../../types/types";
 
 export default function EditarProdutos() {
+
+  const navigate = useNavigate();
+
   const { id } = useParams<{ id: string }>();
 
   const [produto, setProduto] = useState<TipoProduto>({} as TipoProduto);
@@ -28,9 +31,33 @@ export default function EditarProdutos() {
 
   // const produto = listaProdutos.find( ( p )=> p.id === Number(id));
 
-  const alteraDadosCampo = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    const{ name, value } = e.target;
-    setProduto({...produto, [name]: value});
+  const alteraDadosCampo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProduto({ ...produto, [name]: value });
+  }
+
+  const onSubmit = async () => {
+    try {
+
+      const response = await fetch(`http://localhost:3001/produtos/${produto.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(produto)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao atualizar produto : ${response.status} - ${response.statusText}`);
+      }
+
+      //navigate para a página de produtos após a atualização bem-sucedida
+      navigate("/produtos");
+
+    } catch (error) {
+      console.error(error);
+
+    }
   }
 
   return (
@@ -42,18 +69,22 @@ export default function EditarProdutos() {
             <legend>Produto:{produto.nome}</legend>
             <div>
               <label htmlFor="nome">Nome produto:</label>
-    <input type="text" name="nome" id="nome" value={produto.nome} onChange={(e)=> alteraDadosCampo(e)}/>
+              <input type="text" name="nome" id="nome" value={produto.nome} onChange={(e) => alteraDadosCampo(e)} />
             </div>
             <div>
               <label htmlFor="estoque">Estoque:</label>
-              <input type="number" name="estoque" id="estoque" value={produto.estoque} onChange={(e)=> alteraDadosCampo(e)}/>
+              <input type="number" name="estoque" id="estoque" value={produto.estoque} onChange={(e) => alteraDadosCampo(e)} />
             </div>
             <div>
               <label htmlFor="preco">Preço:</label>
-              <input type="number" name="preco" id="preco" value={produto.preco} onChange={(e)=> alteraDadosCampo(e)}/>
+              <input type="number" name="preco" id="preco" value={produto.preco} onChange={(e) => alteraDadosCampo(e)} />
             </div>
+
+            {/* colocar type button para a atualizaçao ser reaizada com sucesso e voltar para a pag original de produtos */}
             <div>
-                <button>Atualizar</button>
+              <button type="button" onClick={onSubmit}>
+                Atualizar
+              </button>
             </div>
           </fieldset>
         </form>
