@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import type { TipoProduto } from "../../types/types";
-import { Link } from "react-router";
-import { FaRegEdit as Editar} from "react-icons/fa";
-import { MdDeleteForever as Excluir} from "react-icons/md";
+import { Link, useNavigate } from "react-router";
+import { FaRegEdit as Editar } from "react-icons/fa";
+import { MdDeleteForever as Excluir } from "react-icons/md";
 
 
 export default function Produtos() {
+
+    const navigate = useNavigate();
 
     const [produtos, setProdutos] = useState<TipoProduto[]>([]);
 
@@ -34,6 +36,29 @@ export default function Produtos() {
 
     }, []);
 
+
+    const handleDelete = async (id: string) => {
+
+
+        try {
+
+            const response = await fetch(`http://localhost:3001/produtos/${id}`, {
+                method: "DELETE"
+            });
+            ;
+            if (!response.ok) {
+                throw new Error(`Erro ao excluir o produto : ${response.status} - ${response.statusText}`);
+            }
+
+            //Redirect
+            alert("Produto excluído!");
+            window.location.href = "/produtos";
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <main>
             <h2>Produtos</h2>
@@ -58,7 +83,10 @@ export default function Produtos() {
                                 <td>{p.nome}</td>
                                 <td>{p.preco}</td>
                                 <td>{p.estoque}</td>
-                                <td>  <Link to={`/editar-produtos/${p.id}`}> <Editar/> </Link> / <Excluir/> </td>
+                                <td>
+                                    <Link to={`/editar-produtos/${p.id}`}> <Editar /> </Link> /
+                                    <Link to="#" onClick={() => handleDelete(p.id)}><Excluir /></Link>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

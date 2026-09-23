@@ -29,28 +29,29 @@ export default function EditarProdutos() {
     carregarProduto();
   }, []);
 
-  const alteraDadosCampo = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    const{ name, value } = e.target;
-    setProduto({...produto, [name]: value});
+  const alteraDadosCampo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProduto({ ...produto, [name]: value });
   }
 
-  const onSubmit = async ()=>{
+  const onSubmit = async () => {
     try {
 
       const response = await fetch(`http://localhost:3001/produtos/${produto.id}`, {
-        method:"PUT",
-        headers:{
-          "Content-Type":"application/json"
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(produto)
       });
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(`Erro ao atualizar o produto : ${response.status} - ${response.statusText}`);
       }
 
       //Redirect
-      navigate("/produtos");
+      //navigate("/produtos");
+      window.location.href = "/produtos";
 
     } catch (error) {
       console.error(error);
@@ -66,15 +67,15 @@ export default function EditarProdutos() {
             <legend>Produto:{produto.nome}</legend>
             <div>
               <label htmlFor="nome">Nome produto:</label>
-    <input type="text" name="nome" id="nome" value={produto.nome} onChange={(e)=> alteraDadosCampo(e)}/>
+              <input type="text" name="nome" id="nome" value={produto.nome} onChange={(e) => alteraDadosCampo(e)} />
             </div>
             <div>
               <label htmlFor="estoque">Estoque:</label>
-              <input type="number" name="estoque" id="estoque" value={produto.estoque} onChange={(e)=> alteraDadosCampo(e)}/>
+              <input type="number" name="estoque" id="estoque" value={produto.estoque} onChange={(e) => alteraDadosCampo(e)} />
             </div>
             <div>
               <label htmlFor="preco">Preço:</label>
-              <input type="number" name="preco" id="preco" value={produto.preco} onChange={(e)=> alteraDadosCampo(e)}/>
+              <input type="number" name="preco" id="preco" value={produto.preco} onChange={(e) => alteraDadosCampo(e)} />
             </div>
             <div>
               <button type="button" onClick={onSubmit}>Atualizar</button>
