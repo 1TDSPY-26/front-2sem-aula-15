@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router";
+import { useNavigate } from "react-router";
 import type { TipoProduto } from "../../types/types";
 
 export default function EditarProdutos() {
 
     const { id } = useParams<{id:string}>();
+
+    const navigate = useNavigate();
 
     const [produto,setProduto] = useState<TipoProduto>({} as TipoProduto);
 
@@ -36,6 +39,29 @@ export default function EditarProdutos() {
     const alterarDadosCampo = (e:React.ChangeEvent<HTMLInputElement>) =>{
         const {name,value} = e.target;
         setProduto({...produto, [name]: value});
+    }
+
+    const onSubmit = async ()=>{
+
+        try{
+
+            const response = await fetch(`http://localhost:3001/produtos/${produto.id}`,{
+                method:"PUT",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify(produto)
+            });
+
+            if(!response.ok){
+                throw new Error(`Erro ao atualizar o produto : ${response.status} - ${response.
+                statusText}`);
+            }
+
+            navigate("/produtos");
+        }catch(error){
+            console.error(error);
+        }
     }
 
     return (
