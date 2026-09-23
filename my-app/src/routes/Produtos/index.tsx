@@ -1,79 +1,98 @@
 import { useEffect, useState } from "react";
 import type { TipoProduto } from "../../types/types";
-import { Link } from "react-router";
-import { FaRegEdit as Editar} from "react-icons/fa"
-import { MdDeleteForever as Deletar} from "react-icons/md";
+import { Link, useNavigate } from "react-router";
+import { FaRegEdit as Editar } from "react-icons/fa";
+import { MdDeleteForever as Deletar } from "react-icons/md";
 
 export default function Produtos() {
+  const navigate = useNavigate();
 
-    const [produtos, setProdutos] = useState<TipoProduto[]>([]);
+  const [produtos, setProdutos] = useState<TipoProduto[]>([]);
 
-    useEffect(() => {
+  useEffect(() => {
+    //Realizando o GetAllProdutos
+    async function carregarProdutos() {
+      try {
+        const response = await fetch("http://localhost:3001/produtos");
 
-        //Realizando o GetAllProdutos
-        async function carregarProdutos() {
-            try {
-
-                const response = await fetch("http://localhost:3001/produtos");
-
-                if (!response.ok) {
-                    throw new Error("A listagem dos produtos falhou!");
-                }
-
-                const data: TipoProduto[] = await response.json();
-                setProdutos(data);
-
-            } catch (error) {
-                console.error(error);
-            }
-
+        if (!response.ok) {
+          throw new Error("A listagem dos produtos falhou!");
         }
 
-        carregarProdutos();
+        const data: TipoProduto[] = await response.json();
+        setProdutos(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
-    }, []);
+    carregarProdutos();
+  }, []);
 
-    return (
-        <main>
-            <h2>Produtos</h2>
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/produtos/${id}`, {
+        method: "DELETE",
+      });
 
-            <div>
-                <table border={1}>
+      if (!response.ok) {
+        throw new Error(
+          `Erro ao excluir o produto: ${response.status} ${response.statusText}`,
+        );
+      }
 
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>NOME</th>
-                            <th>PREÇO</th>
-                            <th>ESTOQUE</th>
-                            <th>AÇÕES</th>
-                        </tr>
-                    </thead>
+      // Redirect
+      //   navigate("/produtos");
+      window.location.href = "/produtos";
+    } catch (error) {
+      console.error(error);
+    }
+    alert("Produto excluído!");
+  };
 
-                    <tbody>
-                        {produtos.map((p, i) => (
-                            <tr key={i}>
-                                <td>{p.id}</td>
-                                <td>{p.nome}</td>
-                                <td>{p.preco}</td>
-                                <td>{p.estoque}</td>
-                                <td>
-                                  <Link to={`/editar-produtos/${p.id}`}><Editar /></Link> <Deletar/>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
+  return (
+    <main>
+      <h2>Produtos</h2>
 
-                    <tfoot>
-                        <tr>
-                            <td colSpan={5}>Quantidade de produtos: {produtos?.length}</td>
-                        </tr>
-                    </tfoot>
+      <div>
+        <table border={1}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>NOME</th>
+              <th>PREÇO</th>
+              <th>ESTOQUE</th>
+              <th>AÇÕES</th>
+            </tr>
+          </thead>
 
-                </table>
-            </div>
+          <tbody>
+            {produtos.map((p, i) => (
+              <tr key={i}>
+                <td>{p.id}</td>
+                <td>{p.nome}</td>
+                <td>{p.preco}</td>
+                <td>{p.estoque}</td>
+                <td>
+                  <Link to={`/editar-produtos/${p.id}`}>
+                    <Editar />
+                  </Link>
+                  <Link to={"#"} onClick={() => handleDelete(p.id)}>
+                    {" "}
+                    <Deletar />{" "}
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
 
-
-        </main>
-    );
+          <tfoot>
+            <tr>
+              <td colSpan={5}>Quantidade de produtos: {produtos?.length}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </main>
+  );
 }
